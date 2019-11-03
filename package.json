@@ -1,0 +1,45 @@
+{
+  "name": "electron-next-skeleton",
+  "productName": "ElectronTypescriptNext",
+  "version": "1.0.0",
+  "main": "main/index.js",
+  "scripts": {
+    "dev:a": "next dev A -p 6001",
+    "dev:b": "next dev B -p 6002",
+    "start": "electron .",
+    "build-renderer": "next build renderer && next export renderer",
+    "build-electron": "tsc -p electron-src",
+    "build": "yarn build-renderer && yarn build-electron",
+    "dist": "npm run build && electron-builder --dir",
+    "type-check": "tsc",
+    "dev:web": "node main/dev-web.js"
+  },
+  "build": {
+    "asar": false,
+    "extraResources": [
+      {
+        "from": "renderer/out",
+        "to": "app/renderer"
+      }
+    ]
+  },
+  "devDependencies": {
+    "@types/app-root-path": "^1.2.4",
+    "@types/next": "8.0.6",
+    "@types/node": "^11.13.9",
+    "@types/react": "^16.8.15",
+    "@types/react-dom": "^16.0.11",
+    "electron": "^6.0.2",
+    "electron-builder": "^21.2.0",
+    "next": "latest",
+    "ts-node-dev": "^1.0.0-pre.44",
+    "typescript": "^3.5.3"
+  },
+  "dependencies": {
+    "app-root-path": "^3.0.0",
+    "electron-is-dev": "^1.0.1",
+    "electron-next": "^3.1.5",
+    "react": "^16.7.0",
+    "react-dom": "^16.7.0"
+  }
+}
