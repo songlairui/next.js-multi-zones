@@ -1,6 +1,6 @@
 {
-  "name": "electron-next-skeleton",
-  "productName": "ElectronTypescriptNext",
+  "name": "lary-nextjs-multi-zones",
+  "productName": "MultiZonesDevWeb",
   "version": "1.0.0",
   "main": "main/index.js",
   "scripts": {
