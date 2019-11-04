@@ -9,7 +9,8 @@ import prepareNext from './electron-next';
 
 // Prepare the renderer once the app is ready
 app.on('ready', async () => {
-  await prepareNext(['./A', './B']);
+  const dirs = ['A', 'B'];
+  await prepareNext(dirs);
 
   const mainWindow = new BrowserWindow({
     width: 800,
@@ -23,12 +24,13 @@ app.on('ready', async () => {
   const url = isDev
     ? 'http://localhost:8000/'
     : format({
-        pathname: join(__dirname, '../renderer/index.html'),
+        pathname: join(__dirname, '../', dirs[0], 'out/index.html'),
         protocol: 'file:',
         slashes: true,
       });
 
   mainWindow.loadURL(url);
+  mainWindow.webContents.openDevTools();
 });
 
 // Quit the app once all windows are closed

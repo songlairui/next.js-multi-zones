@@ -5,15 +5,50 @@ import { join, isAbsolute, normalize } from 'path';
 import { app, protocol } from 'electron';
 import isDev from 'electron-is-dev';
 import { resolve } from 'app-root-path';
-import { devServer } from './multiDevServ';
+import { findPrefixss, parsePathnameWithAssetPrefix } from './utils';
 
+const relativePath = join(__dirname, '..');
+const isInnerLink = (str: string) => str.startsWith(relativePath);
 // TODO build 支持多入口
 const adjustRenderer = (directories: string[]) => {
   const paths = ['/_next', '/static'];
   const isWindows = process.platform === 'win32';
 
+  const pathPrefixss = findPrefixss(directories);
+  const targetDirMap = pathPrefixss.reduceRight(
+    (result, current, idx) => {
+      current.forEach(str => {
+        if (result[str] === undefined) {
+          result[str] = directories[idx];
+        }
+      });
+      return result;
+    },
+    {} as any,
+  );
+
   protocol.interceptFileProtocol('file', (request, callback) => {
     let path = request.url.substr(isWindows ? 8 : 7);
+    // de-set assetPrefix
+    // /about       `/_m_0/_next` => `/_next`
+    if (!path || path === '/') {
+      path = join(directories[0], 'out/index.html');
+    } else if (path.startsWith('/_m_')) {
+      const { idx, subPath } = parsePathnameWithAssetPrefix(path);
+      path = join(directories[idx], 'out', subPath);
+    } else {
+      // index.html   `...A/out/_m_0/_next` => `...A/out/_next`
+      path = path.replace(/_m_\d\/(_next|static)/, '$1');
+      // 不能以 /Volume 开头，mac T
+      if (!isInnerLink(path)) {
+        // 跨 inst 跳转链接，会以应用内作为跟路径
+        const subPath = `${path}/`.slice(0, path.indexOf('/', 1));
+        const targetDir = targetDirMap[subPath];
+        if (targetDir) {
+          path = join(targetDir, 'out', `${path}.html`);
+        }
+      }
+    }
 
     for (const prefix of paths) {
       let newPath = path;
@@ -62,7 +97,8 @@ export default async (directory: string[] | string, port?: number) => {
     adjustRenderer(directories);
     return;
   }
-
+  // 不可前置加载
+  const { devServer } = await import('./multiDevServ');
   return await devServer(directories, port, server => {
     app.on('before-quit', () => server.close());
   });

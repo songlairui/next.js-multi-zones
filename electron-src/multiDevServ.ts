@@ -4,35 +4,14 @@ import { parse } from 'url';
 
 // Packages
 import next from 'next';
-import * as fs from 'fs';
-import * as path from 'path';
 
-const dev = process.env.NODE_ENV !== 'production'
+import {
+  findPrefixss,
+  parsePathnameWithAssetPrefix,
+  findLastIndex,
+} from './utils';
 
-export const findLastIndex = function(this: any[], fn: any) {
-  const tmpArr = [...this].reverse();
-  const idx = tmpArr.findIndex(fn);
-  if (idx === -1) {
-    return -1;
-  }
-  return tmpArr.length - 1 - idx;
-};
-
-export const findPrefixss = (dirs: string[]) =>
-  dirs.map(dir =>
-    fs
-      .readdirSync(`${dir}/pages`)
-      .filter(dir => !dir.startsWith('.'))
-      .map(dir => `/${path.basename(dir, path.extname(dir))}`),
-  );
-
-const parsePathnameWithAssetPrefix = (pathname: string, prefix = '/_m_') => {
-  const len = prefix.length;
-  const subSlashIdx = pathname.indexOf('/', len);
-  const idx = parseInt(pathname.slice(len, subSlashIdx)) || 0;
-  const subPath = pathname.slice(subSlashIdx);
-  return { idx, subPath };
-};
+const dev = process.env.NODE_ENV !== 'production';
 
 export const devServer = async (
   dirs: string[],
@@ -69,7 +48,7 @@ export const devServer = async (
       // 渲染 /_m_x/_next 等资源
       const { idx, subPath } = parsePathnameWithAssetPrefix(pathname);
       targetIdx = idx;
-      req.url = subPath
+      req.url = subPath;
     } else if (pathname) {
       targetIdx = findLastIndex.call(pathPrefixss, (prefixs: string[]) =>
         prefixs.some((prefix: string) => pathname.startsWith(prefix)),
