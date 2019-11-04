@@ -24,6 +24,14 @@ export const findPrefixss = (dirs: string[]) =>
       .map(dir => `/${path.basename(dir, path.extname(dir))}`),
   );
 
+const parsePathnameWithAssetPrefix = (pathname: string, prefix = '/_m_') => {
+  const len = prefix.length;
+  const subSlashIdx = pathname.indexOf('/', len);
+  const idx = parseInt(pathname.slice(len, subSlashIdx)) || 0;
+  const subPath = pathname.slice(subSlashIdx);
+  return { idx, subPath };
+};
+
 export const devServer = async (
   dirs: string[],
   port?: number,
@@ -39,7 +47,13 @@ export const devServer = async (
   const requestHandlers = nextInsts.map(inst => inst.getRequestHandler());
 
   // Build the renderer code and watch the files
-  await Promise.all(nextInsts.map(inst => inst.prepare()));
+  await Promise.all(
+    nextInsts.map((inst, idx) => {
+      inst.prepare().then(() => {
+        inst.setAssetPrefix(`_m_${idx}`);
+      });
+    }),
+  );
 
   // But if developing the application, create a
   // new native HTTP server (which supports hot code reloading)
@@ -47,7 +61,14 @@ export const devServer = async (
     const parsedUrl = parse(req.url!, true);
     const { pathname } = parsedUrl;
     let targetIdx = -1;
-    if (pathname) {
+    if (!pathname) {
+      requestHandlers[0](req, res);
+    } else if (pathname.startsWith('/_m_')) {
+      // 渲染 /_m_x/_next 等资源
+      const { idx, subPath } = parsePathnameWithAssetPrefix(pathname);
+      targetIdx = idx;
+      req.url = subPath
+    } else if (pathname) {
       targetIdx = findLastIndex.call(pathPrefixss, (prefixs: string[]) =>
         prefixs.some((prefix: string) => pathname.startsWith(prefix)),
       );
