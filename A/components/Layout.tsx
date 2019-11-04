@@ -26,9 +26,7 @@ const Layout: React.FunctionComponent<Props> = ({
           <a>About</a>
         </Link>{' '}
         |{' '}
-        <Link href="/initial-props">
-          <a>With Initial Props</a>
-        </Link>
+        <a href="/initial-props">With Initial Props</a>
       </nav>
     </header>
     {children}

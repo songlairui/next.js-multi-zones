@@ -7,6 +7,8 @@ import next from 'next';
 import * as fs from 'fs';
 import * as path from 'path';
 
+const dev = process.env.NODE_ENV !== 'production'
+
 export const findLastIndex = function(this: any[], fn: any) {
   const tmpArr = [...this].reverse();
   const idx = tmpArr.findIndex(fn);
@@ -43,7 +45,7 @@ export const devServer = async (
 
   const pathPrefixss = findPrefixss(dirs);
 
-  const nextInsts = dirs.map(dir => next({ dev: true, dir }));
+  const nextInsts = dirs.map(dir => next({ dev, dir }));
   const requestHandlers = nextInsts.map(inst => inst.getRequestHandler());
 
   // Build the renderer code and watch the files

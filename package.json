@@ -6,13 +6,17 @@
   "scripts": {
     "dev:a": "next dev A -p 6001",
     "dev:b": "next dev B -p 6002",
+    "build:a": "next build A && next export A",
+    "build:b": "next build B && next export B",
+    "build:web": "yarn build:a && yarn build:b",
     "start": "electron .",
     "build-renderer": "next build renderer && next export renderer",
     "build-electron": "tsc -p electron-src",
     "build": "yarn build-renderer && yarn build-electron",
     "dist": "npm run build && electron-builder --dir",
     "type-check": "tsc",
-    "dev:web": "node main/dev-web.js"
+    "dev:web": "node main/dev-web.js",
+    "start:web": "NODE_ENV=production node main/dev-web.js"
   },
   "build": {
     "asar": false,

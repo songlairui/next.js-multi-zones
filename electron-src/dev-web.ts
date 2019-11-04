@@ -17,10 +17,11 @@ export async function prepareNext(directory: string[] | string, port?: number) {
     isAbsolute(item) ? item : resolve(item),
   );
 
-  return await devServer(directories, port);
+  return await devServer(directories, port, () => {
+    console.info(`Listening ${port}`);
+  });
 }
 
 (async function main() {
   await prepareNext(['./A', './B']);
-  console.info('dev web');
 })();
