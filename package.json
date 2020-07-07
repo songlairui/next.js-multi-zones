@@ -34,7 +34,7 @@
     "@types/node": "^11.13.9",
     "@types/react": "^16.8.15",
     "@types/react-dom": "^16.0.11",
-    "electron": "^6.0.2",
+    "electron": "^9.1.0",
     "electron-builder": "^21.2.0",
     "next": "latest",
     "ts-node-dev": "^1.0.0-pre.44",
